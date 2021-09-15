@@ -15,8 +15,7 @@ import java.awt.event.KeyEvent;
 @PluginDescriptor(
 		name = "Two step zoom",
 		description = "Adjusts the zoom between two levels",
-		tags = {"zoom"},
-		enabledByDefault = false
+		tags = {"zoom"}
 )
 
 public class TwoStepZoomPlugin extends Plugin implements KeyListener
