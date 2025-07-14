@@ -1,2 +1,2 @@
-# Two-step Zoom
-A plugins that lets you change between two levels of zoom with the press of a button.
+# Zoom Presets
+A plugins that lets you change between preset levels of zoom with the press of a button.
