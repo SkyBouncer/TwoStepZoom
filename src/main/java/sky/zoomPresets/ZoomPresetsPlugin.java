@@ -2,7 +2,6 @@ package sky.zoomPresets;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,12 +10,10 @@ import net.runelite.api.Client;
 import net.runelite.api.ScriptID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-
-import java.awt.event.KeyEvent;
+import net.runelite.client.util.HotkeyListener;
 import java.util.Arrays;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
@@ -26,7 +23,7 @@ import java.util.stream.IntStream;
 		name = "Zoom presets"
 )
 
-public class ZoomPresetsPlugin extends Plugin implements KeyListener
+public class ZoomPresetsPlugin extends Plugin
 {
 	@Inject
 	private Client client;
@@ -43,6 +40,9 @@ public class ZoomPresetsPlugin extends Plugin implements KeyListener
 	@Inject
 	private KeyManager keyManager;
 
+	private HotkeyListener zoomInHotkey;
+	private HotkeyListener zoomOutHotkey;
+
 	@Getter(AccessLevel.PACKAGE)
 	@Setter(AccessLevel.PACKAGE)
 	private int storedZoomValue;
@@ -51,36 +51,40 @@ public class ZoomPresetsPlugin extends Plugin implements KeyListener
 	protected void startUp() throws Exception
 	{
 		GetStoredZoom();
-		keyManager.registerKeyListener(this);
+
+		zoomInHotkey = new HotkeyListener(config::zoomInKey)
+		{
+			@Override
+			public void hotkeyPressed()
+			{
+				zoomIn();
+			}
+		};
+
+		zoomOutHotkey = new HotkeyListener(config::zoomOutKey)
+		{
+			@Override
+			public void hotkeyPressed()
+			{
+				zoomOut();
+			}
+		};
+
+		keyManager.registerKeyListener(zoomInHotkey);
+		keyManager.registerKeyListener(zoomOutHotkey);
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
-		keyManager.unregisterKeyListener(this);
+		keyManager.unregisterKeyListener(zoomInHotkey);
+		keyManager.unregisterKeyListener(zoomOutHotkey);
 	}
 
 	@Provides
 	ZoomPresetsConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(ZoomPresetsConfig.class);
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == config.zoomInKey().getKeyCode()) {
-			zoomIn();
-		} else if (e.getKeyCode() == config.zoomOutKey().getKeyCode()) {
-			zoomOut();
-		}
 	}
 
 	private void zoomIn() {
